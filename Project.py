@@ -4,6 +4,7 @@
 import numpy as np  
 import scipy as sp
 import matplotlib.pyplot as plt
+from log_bin import *
 
 class oslo(): 
     def __init__(self, size):
@@ -40,7 +41,6 @@ class oslo():
                     self.threshes[i] = np.random.randint(1,3)
                     s += 1
             # add moves from for loop to total avalanche size for relaxation
-            s += s
             #update slopes and booleans 
             slopes = self.heights - shifted
             overthresh = slopes > self.threshes
@@ -50,7 +50,7 @@ class oslo():
         for height in self.heights:
             print '#' * np.int(height) 
 
-L = 128
+L = 30
 pile = oslo(L)
 # while True:
 #     pile.drive()
@@ -59,7 +59,7 @@ pile = oslo(L)
 #     raw_input()
 
 transients = 1025
-recurrent = 257
+recurrent = int(1e5)
 total = transients + recurrent
 s_list = np.array([])
 for i in range(1,transients):
@@ -75,35 +75,29 @@ for k in range(1,recurrent):
 # sort the avalanche list 
 # plot and hope to find power law structure 
 s_sort = np.sort(s_list)
-s_sort = np.flipud(s_sort)
-# print s_sort
-plt.loglog(s_sort)
-plt.ylabel('avalanche size')
+s_sort = np.flipud(s_sort) #only works for 1D arrays 
+print np.max(s_sort)
+print len(s_sort)
 
-
-# a = numpy.asarray(a, dtype=float)
-# b = numpy.asarray(b, dtype=float)
-# Now you can perform operations on them. What the loglog-plot does, is to take the logarithm to base 10 of both a and b. You can do the same by
-
-# logA = numpy.log10(a)
-# logB = numpy.log10(b)
-# This is what the loglog plot visualizes. Check this by ploting both logA and logB as a regular plot. Repeat the linear fit on the log data and plot your line in the same plot as the logA, logB data.
+# do log binning
+b, c = log_bin(s_sort) #, bin_start=1., first_bin_width=1., a=2., datatype='float', drop_zeros=True, debug_mode=False):
+# b, c = log_bin(x, 1., 1.5, a, debug_mode=True)
+# plt.loglog(vals, counts, 'bx')
+plt.loglog(b, c, 'r-')
+plt.show() 
+    
+# plt.xlabel("Log (Rank of frequency)")
+# plt.ylabel("Log (Frequency)")
+# plt.title("Frequency vs frequency rank for words")
+# plt.plot(s_sort)
+# plt.ylabel('avalanche size')
 
 # coefficients = numpy.polyfit(logB, logA, 1)
 # polynomial = numpy.poly1d(coefficients)
 # ys = polynomial(b)
-# plt.plot(logB, logA)
 # plt.plot(b, ys)
 
-# plt.loglog(b,a,'ro')
-# plt.plot(b,ys)
-# plt.xlabel("Log (Rank of frequency)")
-# plt.ylabel("Log (Frequency)")
-# plt.title("Frequency vs frequency rank for words")
 # plt.show()
-
-print np.max(s_sort)
-plt.show()
 
 
 
