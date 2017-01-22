@@ -179,6 +179,11 @@ TSWLatexianTemp*
 # KBibTeX
 *~[0-9]*
 
+###################
+
 # images 
 *.png
 *.jpg
+
+# python 
+*.pyc
