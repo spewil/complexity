@@ -180,5 +180,5 @@ TSWLatexianTemp*
 *~[0-9]*
 
 # images 
-.png
-.jpg
+*.png
+*.jpg
