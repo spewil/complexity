@@ -28,25 +28,28 @@ ax3.set_ylabel('crossover time')
 piles = []
 for i in range(len(L)):
 	piles.append(oslo(L[i],p))
-	trans = 1e3
-	recur = 1e4
+
+# time variables 
+trans = 1e3
+recur = 1e4
 
 crossovers = []
 for pile in piles:
-# 	     drop_grains(self,trans=500,recur=1000,from_zero=True,draw=False):
+# 	drop_grains(self,trans=500,recur=1000,from_zero=True,draw=False):
 	pile.drop_grains(trans,recur,True,False)
 	s = pile.sizes
 	h = pile.htotal 
 	if hasattr(pile,'crossover'):
 		crossovers.append(pile.crossover)
-	ax1.plot(h)
-	b, c = log_bin(s, 1., 1.5, a=1.2)
-	ax2.loglog(b, c, 'r-')
+	ax1.plot(h)	
+	if pile == piles[0]:
+		vals, counts = lin_bin(s, int(max(s)))
+		b, c = log_bin(s, 1., 1.5, 2)
+		ax2.loglog(vals, counts, 'bx')
+		ax2.loglog(b, c, 'r-')
 
 ax3.plot(L,crossovers)
 plt.show()
-
-
 
 
 # sort the avalanche list 

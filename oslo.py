@@ -34,6 +34,8 @@ class oslo():
             for i in np.arange(self.size):    
                 # if greater than threshold 
                 if self.slopes[i] > self.threshes[i]:
+                    # size of the avalanche goes up 1
+                    s += 1
                     # change the height of that one 
                     self.heights[i] -= 1
                     # if it's not the last element 
@@ -41,7 +43,6 @@ class oslo():
                         self.heights[i+1] += 1
                     # update the threshold value of ith position 
                     self.threshes[i] = np.random.binomial(1,self.p,None) + 1
-                    s += 1
             # add moves from for loop to total avalanche size for relaxation
             #update slopes and booleans 
             self.slopes = self.heights - shifted
@@ -63,6 +64,7 @@ class oslo():
                 s_curr, h0 = self.relax()
                 h_list = np.append(h_list, h0)
                 s_list = np.append(s_list, s_curr)
+                #when the last slot fills for the first time
                 if self.heights[-1] != 0 and self.crossover == None:
                     self.crossover = i 
                 if draw:
@@ -79,10 +81,9 @@ class oslo():
                 s_curr, h0 = self.relax()
                 h_list = np.append(h_list, h0)
                 s_list = np.append(s_list, s_curr)
+                #when the last slot fills for the first time 
                 if self.heights[-1] != 0 and self.crossover == None:
                     self.crossover = i
-                # else:
-                    # self.crossover = None 
                 if draw:
                     self.draw()
                     raw_input()       
