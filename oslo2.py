@@ -30,22 +30,17 @@ class oslo():
         # while any are true, should be updated 
         s = 0 
         while np.sum(overthresh) != 0:  
-            # move through each element of slopes
+            self.heights -= overthresh
+            overthresh_shift = np.roll(overthresh,1)
+            overthresh_shift[0] = 0 
+            self.heights += overthresh_shift
+
             for i in np.arange(self.size):    
-                # if greater than threshold 
-                if self.slopes[i] > self.threshes[i]:
-                    # size of the avalanche goes up 1
-                    s += 1
-                    # change the height of that one 
-                    self.heights[i] -= 1
-                    # if it's not the last element 
-                    if i != self.size - 1:
-                        self.heights[i+1] += 1
-                    # update the threshold value of ith position 
-                    self.threshes[i] = np.random.binomial(1,self.p,None) + 1
-            # add moves from for loop to total avalanche size for relaxation
-            #update slopes and booleans 
-            shifted = np.roll(self.heights,-1)
+                if overthresh[i] == 1:
+                    self.threshes[i] = np.random.binomial(1,self.p,None) + 1 
+            s += np.sum(overthresh)
+
+            shifted = np.roll(self.heights,-1) 
             shifted[-1] = 0 
             self.slopes = self.heights - shifted
             overthresh = self.slopes > self.threshes

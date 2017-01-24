@@ -3,6 +3,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 from log_bin import *
 from oslo import *
+from __future__ import divison
 
 L = 32 
 p = [0,1]
