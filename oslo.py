@@ -13,6 +13,7 @@ class oslo():
         self.heights = np.zeros(size)
         self.threshes = np.array([np.random.binomial(1,self.p,None) + 1 for x in self.heights]) 
         self.slopes = np.zeros(size)
+        self.crossover = None # temp value for crossover time 
 
     def drive(self): 
         # add rice grain to left hand side 
@@ -36,13 +37,18 @@ class oslo():
                 if self.slopes[i] > self.threshes[i]:
                     # size of the avalanche goes up 1
                     s += 1
-                    # change the height of that one 
+                    
+                    # always decrement the height of current 
                     self.heights[i] -= 1
+                    
                     # if it's not the last element 
-                    if i != self.size - 1:
+                    if i != self.size - 1: 
+                        # topple to the next 
                         self.heights[i+1] += 1
+
                     # update the threshold value of ith position 
                     self.threshes[i] = np.random.binomial(1,self.p,None) + 1
+            
             # add moves from for loop to total avalanche size for relaxation
             #update slopes and booleans 
             shifted = np.roll(self.heights,-1)
@@ -59,16 +65,13 @@ class oslo():
         time = int(trans + recur)
         self.sizes = np.array([])
         self.htotal = np.array([])
-        self.crossover = None # temp value for crossover time 
         if from_zero:
             for i in range(1,time+1):
                 self.drive()
                 s_curr, h0 = self.relax()
                 self.htotal = np.append(self.htotal, h0)
                 self.sizes = np.append(self.sizes, s_curr)
-                #when the last slot fills for the first time
-                if self.heights[-1] != 0 and self.crossover == None:
-                    self.crossover = i 
+
                 if draw:
                     self.draw()
                     raw_input()
@@ -83,13 +86,11 @@ class oslo():
                 s_curr, h0 = self.relax()
                 self.htotal = np.append(self.htotal, h0)
                 self.sizes = np.append(self.sizes, s_curr)
-                #when the last slot fills for the first time 
-                if self.heights[-1] != 0 and self.crossover == None:
-                    self.crossover = i
+
                 if draw:
                     self.draw()
                     raw_input()
-           
+
 
 
 

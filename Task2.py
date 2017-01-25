@@ -30,8 +30,8 @@ def moving_mean(x,W):
 def collect_data():
 
 	# time variables 
-	trans = 1e3
-	recur = 1e4
+	trans = 1e3	
+	recur = 2e3
 
 	crossovers = []
 
@@ -63,6 +63,10 @@ def collect_data():
 	with open(file_path_c, 'w') as fp:
 			json.dump(crossovers, fp) 
 
+	print crossovers
+
+# def approx_slope(): 
+
 
 def plot_data():
 
@@ -81,15 +85,14 @@ def plot_data():
 	ax2.set_ylabel('counts')
 
 	# crossover time
-	fig3 = plt.figure()
-	ax3 = fig3.add_subplot(111)
-	ax3.set_xlabel('system size L')
-	ax3.set_ylabel('crossover time')
+	# fig3 = plt.figure()
+	# ax3 = fig3.add_subplot(111)
+	# ax3.set_xlabel('system size L')
+	# ax3.set_ylabel('crossover time')
 
 		### IMPORT ###
 
-	for i in range(len(L)):
-		
+	for i in range(len(L)):		
 		file_path_s = 'data/avalanche_' + str(L[i]) + '.json'
 		file_path_h = 'data/height_total_' + str(L[i]) + '.json'
 		with open(file_path_s) as fp:
@@ -111,13 +114,13 @@ def plot_data():
 	with open(file_path_c) as fp:
 		c = np.array(json.load(fp))
 	
-	ax3.plot(L,c)
+	# ax3.plot(L,c)
 
 	plt.show()
 
 if __name__ == '__main__':
 	collect_data()
-	# plot_data()
+	plot_data()
 
 # sort the avalanche list 
 # plot and hope to find power law structure 
