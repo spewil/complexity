@@ -88,7 +88,8 @@ class oslo():
                     self.crossover = i
                 if draw:
                     self.draw()
-                    raw_input()       
+                    raw_input()
+           
 
 
 
