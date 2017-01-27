@@ -10,10 +10,11 @@ class oslo():
     def __init__(self, size, p):
         self.p = p
         self.size = size 
-        self.heights = np.zeros(size)
+        self.heights = np.zeros(self.size)
         self.threshes = np.array([np.random.binomial(1,self.p,None) + 1 for x in self.heights]) 
-        self.slopes = np.zeros(size)
+        self.slopes = np.zeros(self.size)
         self.crossover = None # temp value for crossover time 
+        self.toppled_off = False
 
     def drive(self): 
         # add rice grain to left hand side 
@@ -29,7 +30,7 @@ class oslo():
         # true if above threshold height 
         overthresh = self.slopes > self.threshes
         # while any are true, should be updated 
-        s = 0 
+        s = 0
         while np.sum(overthresh) != 0:  
             # move through each element of slopes
             for i in np.arange(self.size):    
@@ -37,19 +38,25 @@ class oslo():
                 if self.slopes[i] > self.threshes[i]:
                     # size of the avalanche goes up 1
                     s += 1
-                    
-                    # always decrement the height of current 
-                    self.heights[i] -= 1
-                    
-                    # if it's not the last element 
+
+                    # if not the last slot 
                     if i != self.size - 1: 
+                        # decrement the height of current 
+                        self.heights[i] -= 1
                         # topple to the next 
                         self.heights[i+1] += 1
+                    
+                    # if the last slot  
+                    elif i == self.size - 1:
+                        # decrement the height of current 
+                        self.heights[i] -= 1
+                        # we are visiting the last site 
+                        self.toppled_off = True
+                        # print('decrement last slot')
 
                     # update the threshold value of ith position 
                     self.threshes[i] = np.random.binomial(1,self.p,None) + 1
             
-            # add moves from for loop to total avalanche size for relaxation
             #update slopes and booleans 
             shifted = np.roll(self.heights,-1)
             shifted[-1] = 0 
@@ -72,6 +79,8 @@ class oslo():
                 self.htotal = np.append(self.htotal, h0)
                 self.sizes = np.append(self.sizes, s_curr)
 
+                if (self.toppled_off == True and self.crossover == None):
+                        self.crossover = i
                 if draw:
                     self.draw()
                     raw_input()

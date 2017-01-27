@@ -1,15 +1,15 @@
 from __future__ import division
 import numpy as np  
-import scipy as sp
+from scipy.optimize import fmin
+import json 
 import matplotlib.pyplot as plt
 from log_bin import *
 from oslo import *
-import json 
 
 
 ## global model params 
 # L values 
-L = [2**x for x in range(4,9)]
+L = [2**x for x in range(3,9)]
 #binomial probability 
 p = 0.5
 
@@ -28,10 +28,9 @@ def moving_mean(x,W):
     return x 
 
 def collect_data():
-
 	# time variables 
 	trans = 1e3	
-	recur = 2e3
+	recur = 1e5
 
 	crossovers = []
 
@@ -57,16 +56,10 @@ def collect_data():
 		if hasattr(pile,'crossover'):
 			crossovers.append(pile.crossover)
 
-	# cj = json.dumps(crossovers) 	
 	file_path_c = 'data/crossovers.json'
 
 	with open(file_path_c, 'w') as fp:
 			json.dump(crossovers, fp) 
-
-	print crossovers
-
-# def approx_slope(): 
-
 
 def plot_data():
 
@@ -85,10 +78,10 @@ def plot_data():
 	ax2.set_ylabel('counts')
 
 	# crossover time
-	# fig3 = plt.figure()
-	# ax3 = fig3.add_subplot(111)
-	# ax3.set_xlabel('system size L')
-	# ax3.set_ylabel('crossover time')
+	fig3 = plt.figure()
+	ax3 = fig3.add_subplot(111)
+	ax3.set_xlabel('system size L')
+	ax3.set_ylabel('crossover time')
 
 		### IMPORT ###
 
@@ -110,13 +103,46 @@ def plot_data():
 		# ax2.loglog(vals, counts, 'bx')
 		ax2.loglog(b, c, 'r-')
 	
+	# fig1.savefig('figs/heights_raw.png')
+	# fig2.savefig('figs/avalanches_raw.png')
+	
 	file_path_c = 'data/crossovers.json'
 	with open(file_path_c) as fp:
 		c = np.array(json.load(fp))
 	
-	# ax3.plot(L,c)
+	print c
+
+ 	ax3.plot(L,c,'ro')
+
+	# # fitting 
+	print L 
+
+	# def func(a, XX):
+	#     yfit = [a*(x**2) for x in XX]
+	#     print yfit
+	#     return yfit
+	# def objective(a):
+	#     'function to minimize'
+	#     SSE = np.sum((c - func(a, L))**2)
+	#     print SSE
+	#     return SSE
+
+	# a_fit = fmin(objective, 1)
+	# x = np.linspace(0, 128)
+	# ax3.plot(x, func(a_fit, x))
+
+	# fitting 
+	coefficients = np.polyfit(L, c, 2)
+	coefficients[-2:] = [0]*2 # set linear and constants to 0 
+	polynomial = np.poly1d(coefficients)
+	ys = polynomial(range(256))
+	ax3.plot(range(256), ys)
+
+	# print a_fit
 
 	plt.show()
+
+	# fig3.savefig('figs/crossoversvtime.png')
 
 if __name__ == '__main__':
 	collect_data()
@@ -129,11 +155,6 @@ if __name__ == '__main__':
 # do log binning
 # b, c = log_bin(data, bin_start=1., first_bin_width=1., a=2., datatype='float', drop_zeros=True, debug_mode=False):
 
-# # fitting 
-# coefficients = np.polyfit(b, c, 1)
-# polynomial = np.poly1d(coefficients)
-# ys = polynomial(b)
-# ax2.plot(b, ys)
 
 
 
