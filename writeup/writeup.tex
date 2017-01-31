@@ -1,0 +1,124 @@
+% writeup 
+
+\documentclass[12pt]{report}
+
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{mathtools}
+\usepackage{cleveref}
+\usepackage{courier}
+
+\graphicspath{{./figs/}}
+
+\begin{document}
+
+\title{Complexity Project: The Oslo Model}
+\author{Spencer Wilson}
+\date{\today}
+\maketitle
+
+\newpage
+
+\section*{1}
+
+Devise and perform some simple tests (e.g. by selecting particular simple values of p) to check whether your programme is working as intended.
+
+We plug in for p=1, p=0 
+
+We expect half and double recurrent heights, with single recurrent 
+%
+\begin{align*}
+P^T\textbf{x} &= \lambda{\textbf{x}} \\ 
+\textbf{x}^TP^T\textbf{x} &= \textbf{x}^T\lambda{\textbf{x}} \\
+\frac{\textbf{x}^TP^T\textbf{x}}{\textbf{x}^T\textbf{x}} &= \lambda 
+\end{align*}
+%
+\begin{equation*}
+P^T\textbf{x} = \textbf{x}	
+\end{equation*}
+%
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth]{heightsTest.png}
+\caption{}
+\label{heightsTest}
+\end{center}
+\end{figure}
+%
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth]{sizetimeseries}
+\caption{}
+\label{sizetimeseries}
+\end{center}
+\end{figure}
+%
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=\textwidth]{sizes_logbin}
+\caption{}
+\label{sizes_logbin}
+\end{center}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+QUESTIONS
+
+-is the function F just something*h(argument)?
+-check collapsed height plot
+-check collapsed gaussian
+-check the correction to recurrent height mean scaling 
+	argument about w1 = 1 (1/L)
+	how to fit (all data or only 128-256)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% (a)
+
+% - Starting from an empty system, measure the total height of the pile as a function of time t for the range of system sizes listed above. Plot the height h(t; L) vs. time t for the various system sizes in the same plot. 
+
+% 	DONE 
+
+% - Reflect upon the results obtained in terms of transient and recurrent configurations. 
+
+% 	DONE 
+
+% - How does the cross-over time $t_c(L)$ for the system to reach the recurrent configurations (steady state) scale with system size? Qualify your answer. 
+
+% 	HOW DO WE GET THIS ACCURATELY? FIT DATA FOR T_C, WE EXPECT ~L^2 ?
+% 		--fit quadratically? why quadratic? 
+% 				write down tc v L for p=0 and p=1 
+% 				think about the area of the triangle  
+
+% - How does the height of the pile in the steady state scale with system size? Qualify your answer.
+
+% 	LINEARLY? PLOT THIS 
+% 	mean(heights[-100:-1 ]
+
+% (b) 
+
+% MEASURE (for t0 > tc):
+
+% 	average height
+% 	std of the height 
+% 	height probability 
+
+% - Guided by your answers to the two questions in TASK 2a, produce a data collapse for the processed height ~h(t; L) vs. time t for the various system sizes. 
+
+% 	HOW? 
+
+% - Explain carefully how you produced a data collapse and express that mathematically, introducing a scaling function F: ~h(t; L) = something*F(argument), identifying ‘something’ and the ‘argument’. 
+
+% - How does the scaling function F(x) behave for large arguments and for small arguments and why must it be so? 
+
+% - From this result, obtain/predict how ~h(t;L) increases with t during the transient.
+
+\end{document}

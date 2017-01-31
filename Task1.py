@@ -45,11 +45,11 @@ print 'final heights are: ' + str(h0[-1]) + ', ' + str(h5[-1]) + ', '  + 'and ' 
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(111)
 ax2.set_xlabel('grains dropped')
-ax2.set_ylabel('avalanche probability P(s)')
+ax2.set_ylabel('avalanche size/max(size)')
 # xlim changes what the plot shows 
 ax2.set_xlim([trans,trans+recur])
 # change to only plot the recurrent sizes sizes[recur:-1]
-ax2.plot(pile5.sizes)
+ax2.plot(pile5.sizes/max(pile5.sizes))
 
 #log_binned plot of sizes 
 
@@ -58,7 +58,16 @@ b, c = log_bin(pile5.sizes, a = 1.7)
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(111)
 ax3.set_xlabel('grains dropped')
-ax3.set_ylabel('avalanche size')
+ax3.set_ylabel('avalanche probability P(s)')
 ax3.loglog(b, c, 'r-')
 
+fig1.savefig('writeup/figs/heightsTest.png')
+fig2.savefig('writeup/figs/sizetimeseries.png')
+fig3.savefig('writeup/figs/sizes_logbin.png')
+
 plt.show()
+
+
+
+
+
