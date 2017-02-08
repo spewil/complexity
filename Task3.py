@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 from log_bin import *
 from oslo import *
+from Task2.py import * 
 
 def plot_data(save=True):
 
@@ -31,8 +32,9 @@ def plot_data(save=True):
 	#### (a) 
 
 	#### P(s,L)
-	vals, counts = lin_bin(s, int(max(s)))
-	ax2.loglog(vals, counts, 'bx')
+	# vals, counts = lin_bin(s, int(max(s)))
+	# ax2.loglog(vals, counts, 'bx')
+	ax2.loglog(s)
 	centres, counts = log_bin(s, a = 1.5)
 	ax2.loglog(centres, counts, 'r-')
 
@@ -51,5 +53,5 @@ if __name__ == '__main__':
 	recur = 1e5
 
 	time = trans+recur
-	# collect_data()
+	collect_data()
 	plot_data(save=True)

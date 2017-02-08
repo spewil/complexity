@@ -62,12 +62,6 @@ def plot_data(save=True):
 	ax1.set_xlabel('time, grains dropped')
 	ax1.set_ylabel('total height')
 
-	# probability P(s,L)
-	fig2 = plt.figure()
-	ax2 = fig2.add_subplot(111)
-	ax2.set_xlabel('centres')
-	ax2.set_ylabel('counts')	
-
 	# crossover time
 	fig3 = plt.figure()
 	ax3 = fig3.add_subplot(111)
@@ -111,13 +105,13 @@ def plot_data(save=True):
 	with open(file_path_c) as fp:
 		c = np.array(json.load(fp))
 	# fitting 
-	coeff_t = np.polynomial.polynomial.polyfit(L[3:-1], c, [2])
+	coeff_t = np.polynomial.polynomial.polyfit(L, c, [2])
 	coeff_t = coeff_t[::-1] 
 	# print 't_c scaling coeffs: ' + str(coeff_t)
 	polynomial = np.poly1d(coeff_t)
 	ys = polynomial(range(256))
 	# add plots 
-	ax3.plot(L[3:-1],c,'ro',zorder=10)
+	ax3.plot(L,c,'ro',zorder=10)
 	ax3.plot(range(256), ys)
 
 	# will save the mean recurrent heights as a list
@@ -137,16 +131,12 @@ def plot_data(save=True):
 		###PLOTTING###
 		
 		# ax1.plot(h)	
-		h_smooth = moving_mean(h,25)
+		# use a window that grows with system size (looks nicer)
+		h_smooth = moving_mean(h,2*L[i])
 		#plot the smoothed heights 
 
 		ax1.plot(h_smooth)
 
-		# P(s,L)
-		vals, counts = lin_bin(s, int(max(s)))
-		ax2.loglog(vals, counts, 'bx')
-		centres, counts = log_bin(s, a = 1.5)
-		ax2.loglog(centres, counts, 'r-')
 
 		#grab and store the mean of the steady-state 
 		#recurrent height average of t0:end steps 
@@ -168,6 +158,7 @@ def plot_data(save=True):
 	 	h_scale = h_smooth[0:timespan] / L[i] #multiply by 1/L to normalize height
 	 	scaled_time = np.array(range(timespan)) / L[i]**2 #multiply by 1/L^2 to scale crossover time
 	 	ax5.plot(scaled_time,h_scale)
+
 	 	# ax5.set_xlim([0,3])
 
 	 	# HEIGHT PROBABILITY  P(h,L)
@@ -225,14 +216,8 @@ def plot_data(save=True):
 		################## finding corrections 
 
 
-
-
 	# fig1.savefig('writeup/figs/heights_raw.png')
-	# fig2.savefig('writeup/figs/avalanches_raw.png')
-
-	# height scaling 
-	# taking logs 
-
+	# fig2.savefig('writeup/figs/avalanches_raw.png'
 
 	# fitting 
 	coeff_h = np.polynomial.polynomial.polyfit(L[-2:], h_means[-2:], [0,1])
@@ -250,13 +235,24 @@ def plot_data(save=True):
 	# slope of height vs system size L 
 	# print a0
 
+	# height scaling 
+	# for t<<tc, scales like sqrt(t)! 
+	t = np.linspace(0,2.5,100) 
+	#up to some constant 
+	h_scaling_less_tc = 1.8*np.sqrt(t)
+	ax5.plot(t,h_scaling_less_tc,'r--')
+	ax5.set_xlim([0,2.5])
+	ax5.set_ylim([0,2.5])
+	# add the constant 
+	ax5.plot(t,np.ones(len(t))*a0,'r--')
+
 	ax6.plot(L,[h_means[i]/L[i] for i in range(len(L))]) 
 
 	# scale transformation for data collapse 
 	# handles,labels = ax5.get_legend_handles_labels()
 	
 	labels = [str(x) for x in L]
-	ax5.legend(labels)
+	ax5.legend(labels,loc=4)
 
 	# plot height standard deviation vs L 
 	fig9 = plt.figure()
@@ -276,10 +272,10 @@ def plot_data(save=True):
 
 	if save == True:
 		fig1.savefig('writeup/figs/heightsvtime.png')
-		fig2.savefig('writeup/figs/avalancheprob.png')
+
 		fig3.savefig('writeup/figs/crossovertime.png')
 		fig4.savefig('writeup/figs/meanheights.png')
-		fig5.savefig('writeup/figs/heightscaled.png')
+		fig5.savefig('writeup/figs/heightcollapse.png')
 		fig6.savefig('writeup/figs/correctiontoscaling.png')
 		fig7.savefig('writeup/figs/heightprob.png')
 		fig8.savefig('writeup/figs/heightprobscaled.png')
@@ -291,7 +287,7 @@ if __name__ == '__main__':
 
 	## global model params 
 	# L values 
-	L = [2**x for x in range(3,8)]
+	L = [2**x for x in range(1,9)]
 	#binomial probability 
 	p = 0.5
 
