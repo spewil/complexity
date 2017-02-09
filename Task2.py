@@ -54,6 +54,9 @@ def collect_data():
 
 def plot_data(save=True):
 
+	print L 
+	print pows 
+
 		### SET UP ###
 
 	# heights, moving average 
@@ -104,14 +107,18 @@ def plot_data(save=True):
 	file_path_c = 'data/crossovers.json'
 	with open(file_path_c) as fp:
 		c = np.array(json.load(fp))
+
+	# update c for only the powers we want 
+	cc = [c[pow-1] for pow in pows]
+	
 	# fitting 
-	coeff_t = np.polynomial.polynomial.polyfit(L, c, [2])
+	coeff_t = np.polynomial.polynomial.polyfit(L, cc, [2])
 	coeff_t = coeff_t[::-1] 
 	# print 't_c scaling coeffs: ' + str(coeff_t)
 	polynomial = np.poly1d(coeff_t)
 	ys = polynomial(range(256))
 	# add plots 
-	ax3.plot(L,c,'ro',zorder=10)
+	ax3.plot(L,cc,'ro',zorder=10)
 	ax3.plot(range(256), ys)
 
 	# will save the mean recurrent heights as a list
@@ -134,19 +141,17 @@ def plot_data(save=True):
 		# use a window that grows with system size (looks nicer)
 		h_smooth = moving_mean(h,2*L[i])
 		#plot the smoothed heights 
-
 		ax1.plot(h_smooth)
-
 
 		#grab and store the mean of the steady-state 
 		#recurrent height average of t0:end steps 
 		# t0 = tc + 200
-		h_recur = np.array(h[c[i]+200:]) 
+		h_recur = np.array(h[cc[i]+200:]) 
 		
 		h_mean = np.sum(h_recur)/len(h_recur)
-		h_sq_mean = np.sum(h_recur**2)/len(h_recur**2)
+		h_sq_mean = np.sum(h_recur**2)/len(h_recur)
 		# stddev for the height 
-		h_stddev = (h_sq_mean - h_mean**2)**.5
+		h_stddev = np.sqrt(h_sq_mean - h_mean**2)
 
 	 	#lists for each system
 	 	h_means.append(h_mean)
@@ -154,7 +159,7 @@ def plot_data(save=True):
 
 	 	# scale the height axis, normalize by L
 	 	# take height 1k past the crossover time
-	 	timespan = c[i]+1000
+	 	timespan = cc[i]+1000
 	 	h_scale = h_smooth[0:timespan] / L[i] #multiply by 1/L to normalize height
 	 	scaled_time = np.array(range(timespan)) / L[i]**2 #multiply by 1/L^2 to scale crossover time
 	 	ax5.plot(scaled_time,h_scale)
@@ -219,26 +224,62 @@ def plot_data(save=True):
 	# fig1.savefig('writeup/figs/heights_raw.png')
 	# fig2.savefig('writeup/figs/avalanches_raw.png'
 
-	# fitting 
-	coeff_h = np.polynomial.polynomial.polyfit(L[-2:], h_means[-2:], [0,1])
-	coeff_h = coeff_h[::-1] 
-	# print 'height scaling coeffs: ' + str(coeff_h)
-	polynomial = np.poly1d(coeff_h)
-	ys = polynomial(L)
-	# add plots 
- 	ax4.plot(L, h_means,'ro',zorder=10)
-	ax4.plot(L, ys)
 
-	# approximate a0 using 128 256
-	a0 = (h_means[-1] - h_means[-2])/(L[-1] - L[-2])
-	polynomial = np.poly1d([a0])
+	# first approximation a0 using 128 256
 	# slope of height vs system size L 
-	# print a0
+	a0 = h_means[-1]/L[-1] # (h_means[-1] - h_means[-2])/(L[-1] - L[-2])
+	a0_first = a0 
+	print a0
+	err = 1e5
+	step = 1e-3
+	LogL = np.log(L)
+
+	# figuring out a0 iteratively by minimizing the second order fit parameter 
+	
+	# make a list of a0's we want to look at
+	# start at one or the last value for the first iteration will be zero 
+	# (it's exactly our guess) 
+	a_trials = [x*step + a0 for x in range(1,51)]
+
+
+	for a in a_trials:	
+
+		Log_hOverLa0 = np.log(1 - (np.array(h_means)/(np.array(L)*a)))
+		print 'current a0 iteration: ' + str(a) 
+		# print 1 - (np.array(h_means)/(np.array(L)*a))
+
+		# fit it quadratically  
+		coeff_a = np.polyfit(LogL,Log_hOverLa0, 2)
+		# print coeff_a
+
+		# plot it 
+		if a == a0_first + step: 
+			ax4.plot(LogL,Log_hOverLa0, 'r')
+		else:
+			ax4.plot(LogL,Log_hOverLa0, 'b')
+
+		# take the magnitude of the second derivative
+		# we want to minimize this! 
+		check = np.absolute(coeff_a[0])
+		# highest power first 
+		if check < err:
+			# update quadratic "error"
+			err = check 
+			# update our choice of a0 with the quadratically-minimized version 
+			# (the current iteration)
+			a0 = a
+			print 'current error: ' + str(err)
+
+	ax4.set_xlabel('log(L)')
+	ax4.set_ylabel('log(1 - h/La0')
+
+	# add plots 
+	# ax4.plot(L, h_means,'bo',zorder=10)
 
 	# height scaling 
-	# for t<<tc, scales like sqrt(t)! 
+	# for t<<tc, scales ~ sqrt(t)! 
+	# up to some constant 
 	t = np.linspace(0,2.5,100) 
-	#up to some constant 
 	h_scaling_less_tc = 1.8*np.sqrt(t)
 	ax5.plot(t,h_scaling_less_tc,'r--')
 	ax5.set_xlim([0,2.5])
@@ -257,16 +298,25 @@ def plot_data(save=True):
 	# plot height standard deviation vs L 
 	fig9 = plt.figure()
 	ax9 = fig9.add_subplot(111)
-	ax9.plot(L,h_stddevs)
-	ax9.set_xlabel('system size L')
-	ax9.set_ylabel('height standard deviation')
+	ax9.plot(np.log(L),np.log(h_stddevs),'ro')
+	# fitting 
+	coeff_std = np.polyfit(np.log(L), np.log(h_stddevs), 1)
+	# coeff_std = coeff_std[::-1] 
+	# print 'height scaling coeffs: ' + str(coeff_h)
+	polynomial = np.poly1d(coeff_std)
+	ystd = polynomial(np.log(L))
+	# add plots 
+	ax9.plot(np.log(L), ystd,'b--')
+	ax9.plot(np.log(L),0.241+np.log(L)*0.5411)
+	ax9.set_xlabel('log(system size L)')
+	ax9.set_ylabel('log(height standard deviation)')
 	# how does this scale? 
-	# print stddevs
+
 
 	# plot height standard deviation vs L 
 	fig10 = plt.figure()
 	ax10 = fig10.add_subplot(111)
-	ax10.plot(np.log(L),np.log(1 - (np.array(h_means)/(np.array(L)*a0))))
+	ax10.plot(np.log(L),np.log(1 - (np.array(h_means)/(np.array(L)*(a0)))))
 	ax10.set_xlabel('log(system size L)')
 	ax10.set_ylabel('log(1 - <h>/a0*L)')
 
@@ -287,12 +337,13 @@ if __name__ == '__main__':
 
 	## global model params 
 	# L values 
-	L = [2**x for x in range(1,9)]
+	pows = range(3,9)
+	L = [2**x for x in pows]
 	#binomial probability 
 	p = 0.5
 
 	# time variables 
-	trans = 1e3	
+	trans = 0	
 	recur = 1e5
 
 	time = trans+recur

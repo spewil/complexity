@@ -35,7 +35,7 @@ def plot_data(save=True):
 	# vals, counts = lin_bin(s, int(max(s)))
 	# ax2.loglog(vals, counts, 'bx')
 	ax2.loglog(s)
-	centres, counts = log_bin(s, a = 1.5)
+	centres, counts = log_bin(s, a = 1.5, drop_zeros=False)
 	ax2.loglog(centres, counts, 'r-')
 
 	plt.show()
